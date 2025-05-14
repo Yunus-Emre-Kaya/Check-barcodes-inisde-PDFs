@@ -52,7 +52,7 @@ class Program
         {
             string pdfFile = pdfFiles[fileIndex];
             string fileName = Path.GetFileName(pdfFile);
-            DateTime fileDate = File.GetCreationTime(pdfFile);
+            DateTime fileDate = File.GetLastWriteTime(pdfFile);
 
             // Add file counter to console output (current/total)
             Console.WriteLine($"\nScanning file [{fileIndex + 1}/{pdfFiles.Length}]: {fileName}");
@@ -221,14 +221,17 @@ class Program
                                                 // Fix: Use the MultiFormatReader directly with the binary bitmap
                                                 var result = reader.decode(binaryBitmap, hints);
                                                 if (result != null)
-                                                {
-                                                    results.Add(new BarcodeResult
+                                                    if (result.BarcodeFormat == BarcodeFormat.CODE_128)
                                                     {
-                                                        Page = i + 1,
-                                                        Text = result.Text,
-                                                        BarcodeFormat = result.BarcodeFormat
-                                                    });
-                                                }
+                                                        {
+                                                            results.Add(new BarcodeResult
+                                                            {
+                                                                Page = i + 1,
+                                                                Text = result.Text,
+                                                                BarcodeFormat = result.BarcodeFormat
+                                                            });
+                                                        }
+                                                    }
 
                                                 // Try to find multiple barcodes in one image
                                                 try
